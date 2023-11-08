@@ -199,7 +199,13 @@ async function run() {
         });
 
         // for pass the data from client side to server site and site the data in database
-   
+        app.post("/appliedJobs", async (req, res) => {
+            const appliedJob = req.body;
+            // console.log("new jobs:", newJob);
+            // Insert the defined document into the "appliedJobCollection" collection
+            const result = await appliedJobCollection.insertOne(appliedJob);
+            res.send(result);
+        })
 
 
         // Send a ping to confirm a successful connection
