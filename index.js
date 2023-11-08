@@ -61,7 +61,7 @@ async function run() {
         // await client.connect();
 
         const jobCollection = client.db("jobDB").collection("jobs");
-       
+        const appliedJobCollection = client.db("jobDB").collection("appliedJobs");
 
 
         // auth related api
@@ -90,25 +90,7 @@ async function run() {
 
 
         // get the specific data search by email in server site.
-        app.get('/jobs', logger,  async (req, res) => {
-            console.log(req.query.email);
-            // console.log("tok tok token",req.cookies.token);
-            // console.log("user in the valid token",req.user);
-
-            // if(req.query.email !== req.user.email){
-            //     return res.status(403).send({message: 'forbidden access'})
-            // }
-            console.log("hello")
-            let query = {};
-            if (req.query?.email) {
-                query = { email: req.query.email }
-            }
-            console.log(query);
-            const result = await jobCollection.find(query).toArray();
-            console.log(result);
-            res.send(result);
-        });
-
+       
 
         app.get('/jobs/:id', async (req, res) => {
             const id = req.params.id;
