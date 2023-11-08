@@ -61,7 +61,7 @@ async function run() {
         // await client.connect();
 
         const jobCollection = client.db("jobDB").collection("jobs");
-        const appliedJobCollection = client.db("jobDB").collection("appliedJobs");
+       
 
 
         // auth related api
