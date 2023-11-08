@@ -164,7 +164,13 @@ async function run() {
 
         })
 
-
+        app.delete("/jobs/:id", async (req, res) => {
+            const id = req.params.id;
+            // console.log("please delete from database");
+            const query = { _id: new ObjectId(id) } //unique objectId to delete one data
+            const result = await jobCollection.deleteOne(query);
+            res.send(result);
+        })
        
         // appliedJob
 
@@ -193,13 +199,7 @@ async function run() {
         });
 
         // for pass the data from client side to server site and site the data in database
-        app.post("/appliedJobs", async (req, res) => {
-            const appliedJob = req.body;
-            // console.log("new jobs:", newJob);
-            // Insert the defined document into the "appliedJobCollection" collection
-            const result = await appliedJobCollection.insertOne(appliedJob);
-            res.send(result);
-        })
+   
 
 
         // Send a ping to confirm a successful connection
