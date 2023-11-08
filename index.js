@@ -90,6 +90,25 @@ async function run() {
 
 
         // get the specific data search by email in server site.
+        app.get('/jobs', logger,  async (req, res) => {
+            console.log(req.query.email);
+            // console.log("tok tok token",req.cookies.token);
+            // console.log("user in the valid token",req.user);
+
+            // if(req.query.email !== req.user.email){
+            //     return res.status(403).send({message: 'forbidden access'})
+            // }
+            console.log("hello")
+            let query = {};
+            if (req.query?.email) {
+                query = { email: req.query.email }
+            }
+            console.log(query);
+            const result = await jobCollection.find(query).toArray();
+            console.log(result);
+            res.send(result);
+        });
+
        
 
         app.get('/jobs/:id', async (req, res) => {
@@ -118,32 +137,7 @@ async function run() {
         //     res.send(result);
         // })
 
-        app.put("/jobs/:id", async (req, res) => {
-            const id = req.params.id;
-            const updatedJob = req.body;
-            // console.log(user);
-            const filter = { _id: new ObjectId(id) }
-            const options = { upsert: true }
-            const job = {
-                $set: {
-
-                    url: updatedJob.url,
-                    title: updatedJob.title,
-                    name: updatedJob.name,
-                    postdate: updatedJob.postdate,
-                    category: updatedJob.category,
-                    deadline: updatedJob.deadline,
-                    number: updatedJob.number,
-                    salary: updatedJob.salary,
-                    company: updatedJob.company,
-                    email: updatedJob.email,
-                    description: updatedJob.description
-                }
-            }
-            const result = await jobCollection.updateOne(filter, job, options);
-            res.send(result);
-
-        })
+       
 
 
         app.delete("/jobs/:id", async (req, res) => {
