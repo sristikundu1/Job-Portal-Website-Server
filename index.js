@@ -137,16 +137,35 @@ async function run() {
         //     res.send(result);
         // })
 
-       
-
-
-        app.delete("/jobs/:id", async (req, res) => {
+        app.put("/jobs/:id", async (req, res) => {
             const id = req.params.id;
-            // console.log("please delete from database");
-            const query = { _id: new ObjectId(id) } //unique objectId to delete one data
-            const result = await jobCollection.deleteOne(query);
+            const updatedJob = req.body;
+            // console.log(user);
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true }
+            const job = {
+                $set: {
+
+                    url: updatedJob.url,
+                    title: updatedJob.title,
+                    name: updatedJob.name,
+                    postdate: updatedJob.postdate,
+                    category: updatedJob.category,
+                    deadline: updatedJob.deadline,
+                    number: updatedJob.number,
+                    salary: updatedJob.salary,
+                    company: updatedJob.company,
+                    email: updatedJob.email,
+                    description: updatedJob.description
+                }
+            }
+            const result = await jobCollection.updateOne(filter, job, options);
             res.send(result);
+
         })
+
+
+       
         // appliedJob
 
         // app.get("/appliedJobs", async (req, res) => {
