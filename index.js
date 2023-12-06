@@ -11,11 +11,11 @@ const port = process.env.PORT || 5000;
 //middleware
 app.use(cors({
     origin: ['http://localhost:5173',
-'https://dream-catalyst.web.app'],
+        'https://dream-catalyst.web.app'],
     credentials: true
-  }))
-  app.use(express.json());
-  app.use(cookieParser());
+}))
+app.use(express.json());
+app.use(cookieParser());
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.iz3zu0d.mongodb.net/?retryWrites=true&w=majority`;
@@ -32,27 +32,27 @@ const client = new MongoClient(uri, {
 });
 
 // middleware
-const logger = async(req,res,next) =>{
+const logger = async (req, res, next) => {
     console.log('called:', req.host, req.originalUrl)
     next();
 }
 
-const verifyToken = async(req, res, next) =>{
+const verifyToken = async (req, res, next) => {
     const token = req.cookies?.token;
-    console.log('value of token in middleware',token)
-    if(!token){
-        return res.status(401).send({message:'not authorized'})
+    console.log('value of token in middleware', token)
+    if (!token) {
+        return res.status(401).send({ message: 'not authorized' })
     }
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) =>{
-        if(err){
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+        if (err) {
             console.log(err);
-            return res.status(401).send({message:'not authorized'})
+            return res.status(401).send({ message: 'not authorized' })
         }
-        console.log('value in the token',decoded)
+        console.log('value in the token', decoded)
         req.user = decoded;
         next();
     })
-   
+
 }
 
 async function run() {
@@ -65,21 +65,21 @@ async function run() {
 
 
         // auth related api
-    app.post("/jwt", logger, async (req, res) => {
-        const user = req.body;
-        // console.log(user);
-        // insert the data in the database
-        // const result = await bookingCollections.insertOne(booking);
-        const token = jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{expiresIn:'1hr'})
-        res
-        .cookie('token',token,{
-          httpOnly:true,
-          secure:false,
-        //   sameSite:'none'
+        app.post("/jwt", logger, async (req, res) => {
+            const user = req.body;
+            // console.log(user);
+            // insert the data in the database
+            // const result = await bookingCollections.insertOne(booking);
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1hr' })
+            res
+                .cookie('token', token, {
+                    httpOnly: true,
+                    secure: false,
+                    //   sameSite:'none'
+                })
+                .send({ success: true });
         })
-        .send({success:true});
-      })
-  
+
 
 
         // app.get("/jobs", async (req, res) => {
@@ -90,7 +90,7 @@ async function run() {
 
 
         // get the specific data search by email in server site.
-        app.get('/jobs', logger,  async (req, res) => {
+        app.get('/jobs', logger, async (req, res) => {
             console.log(req.query.email);
             // console.log("tok tok token",req.cookies.token);
             // console.log("user in the valid token",req.user);
@@ -98,18 +98,18 @@ async function run() {
             // if(req.query.email !== req.user.email){
             //     return res.status(403).send({message: 'forbidden access'})
             // }
-            console.log("hello")
+
             let query = {};
             if (req.query?.email) {
                 query = { email: req.query.email }
             }
-            console.log(query);
+
             const result = await jobCollection.find(query).toArray();
-            console.log(result);
+
             res.send(result);
         });
 
-       
+
 
         app.get('/jobs/:id', async (req, res) => {
             const id = req.params.id;
@@ -139,10 +139,11 @@ async function run() {
 
         app.put("/jobs/:id", async (req, res) => {
             const id = req.params.id;
-            const updatedJob = req.body;
+
             // console.log(user);
             const filter = { _id: new ObjectId(id) }
             const options = { upsert: true }
+            const updatedJob = req.body;
             const job = {
                 $set: {
 
@@ -164,6 +165,25 @@ async function run() {
 
         })
 
+
+        app.put("/updatejobs/:id", async (req, res) => {
+            const id = req.params.id;
+
+           
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true }
+            const appliedJob = req.body; 
+            console.log(appliedJob);
+            const job = {
+                $set: {
+                    number: parseInt(appliedJob.number)+1,
+                }
+            }
+            const result = await jobCollection.updateOne(filter, job, options);
+            res.send(result);
+
+        })
+
         app.delete("/jobs/:id", async (req, res) => {
             const id = req.params.id;
             // console.log("please delete from database");
@@ -171,7 +191,7 @@ async function run() {
             const result = await jobCollection.deleteOne(query);
             res.send(result);
         })
-       
+
         // appliedJob
 
         // app.get("/appliedJobs", async (req, res) => {
@@ -205,7 +225,24 @@ async function run() {
             // Insert the defined document into the "appliedJobCollection" collection
             const result = await appliedJobCollection.insertOne(appliedJob);
             res.send(result);
+
+
+
+            // try {
+            //     const result = await appliedJobCollection.insertOne(appliedJob);
+
+            //     // Increment the number of applicants for the job by 1
+            //     const jobId = appliedJob._id;
+            //     await appliedJobCollection.updateOne({ _id: jobId }, { $inc: { number: 1 } });
+
+            //     res.status(200).json({ insertedId: result.insertedId });
+            // } catch (error) {
+            //     console.error('Error applying for job:', error);
+            //     res.status(500).json({ error: 'Failed to apply for job' });
+            // }
         })
+
+        
 
 
         // Send a ping to confirm a successful connection
