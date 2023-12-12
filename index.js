@@ -62,6 +62,8 @@ async function run() {
 
         const jobCollection = client.db("jobDB").collection("jobs");
         const appliedJobCollection = client.db("jobDB").collection("appliedJobs");
+        const reviewJobCollection = client.db("jobDB").collection("reviewJobs");
+        const profileCollection = client.db("jobDB").collection("jobProfile");
 
 
         // auth related api
@@ -240,6 +242,43 @@ async function run() {
             //     console.error('Error applying for job:', error);
             //     res.status(500).json({ error: 'Failed to apply for job' });
             // }
+        })
+
+
+        app.get('/reviews', logger, async (req, res) => {
+            console.log(req.query.email);
+            // console.log("tok tok token",req.cookies.token);
+            // console.log("user in the valid token",req.user);
+
+            // if(req.query.email !== req.user.email){
+            //     return res.status(403).send({message: 'forbidden access'})
+            // }
+
+            let query = {};
+            if (req.query?.email) {
+                query = { email: req.query.email }
+            }
+
+            const result = await reviewJobCollection.find(query).toArray();
+
+            res.send(result);
+        });
+
+
+        app.post("/reviews", async (req, res) => {
+            const newreview = req.body;
+            // console.log("new jobs:", newJob);
+            // Insert the defined document into the "jobs" collection
+            const result = await reviewJobCollection.insertOne(newreview);
+            res.send(result);
+        })
+
+        app.post("/profile", async (req, res) => {
+            const newProfile = req.body;
+            // console.log("new jobs:", newJob);
+            // Insert the defined document into the "jobs" collection
+            const result = await profileCollection.insertOne(newProfile);
+            res.send(result);
         })
 
         
