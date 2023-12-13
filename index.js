@@ -171,14 +171,14 @@ async function run() {
         app.put("/updatejobs/:id", async (req, res) => {
             const id = req.params.id;
 
-           
+
             const filter = { _id: new ObjectId(id) }
             const options = { upsert: true }
-            const appliedJob = req.body; 
+            const appliedJob = req.body;
             console.log(appliedJob);
             const job = {
                 $set: {
-                    number: parseInt(appliedJob.number)+1,
+                    number: parseInt(appliedJob.number) + 1,
                 }
             }
             const result = await jobCollection.updateOne(filter, job, options);
@@ -273,6 +273,17 @@ async function run() {
             res.send(result);
         })
 
+
+        app.get('/profile', logger, async (req, res) => {
+
+            let query = {};
+            if (req.query?.email) {
+                query = { email: req.query.email }
+            }
+            const result = await profileCollection.find(query).toArray();
+            res.send(result);
+        });
+
         app.post("/profile", async (req, res) => {
             const newProfile = req.body;
             // console.log("new jobs:", newJob);
@@ -281,7 +292,34 @@ async function run() {
             res.send(result);
         })
 
-        
+        app.put("/profile/:id", async (req, res) => {
+            const id = req.body;
+
+            // console.log(user);
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true }
+            const updateProfile = req.body;
+            const profile = {
+                $set: {
+
+                    name: updateProfile.name,
+                    email: updateProfile.email,
+                    number: updateProfile.number,
+                    address: updateProfile.address,
+                    photo: updateProfile.photo,
+                    resume: updateProfile.resume,
+                    education: updateProfile.education,
+                    role: updateProfile.role,
+                    category: updateProfile.category,
+                    salary: updateProfile.salary,
+                    type: updateProfile.type
+                }
+            }
+            const result = await profileCollection.updateOne(filter, profile, options);
+            res.send(result);
+
+        })
+
 
 
         // Send a ping to confirm a successful connection
